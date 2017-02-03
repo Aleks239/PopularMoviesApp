@@ -4,18 +4,27 @@ package com.example.aleksandrromanov.popularmoviesapp;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+
+
+import org.json.JSONException;
 
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static String LOG_TAG = MainActivity.class.getName();
-    private static String API_KEY;
+    private static final String LOG_TAG = MainActivity.class.getName();
+    private static String sApiKey;
+    private RecyclerView mRecycleView;
+    private List<String> mDataSource;
+    private MovieAdapter mMovieAdapter;
+
 
 
 
@@ -23,7 +32,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        API_KEY = getString(R.string.MOVIE_DB_API_KEY);
+        sApiKey = getString(R.string.MOVIE_DB_API_KEY);
+
+        URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
+        mRecycleView = (RecyclerView)findViewById(R.id.rv_posters_view);
+        mRecycleView.setHasFixedSize(true);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecycleView.setLayoutManager(layoutManager);
+        mMovieAdapter = new MovieAdapter(this,mDataSource);
+        mRecycleView.setAdapter(mMovieAdapter);
+        new FetchPopularMoviesTask().execute(url);
+
+
+
+
+
+
+
+
     }
 
     @Override
@@ -38,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.refresh_menu_item:
-                URL url = NetworkUtility.buildMovieURL("popular",API_KEY);
+                URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
                 if(url != null){
                     new FetchPopularMoviesTask().execute(url);
                 }
@@ -52,20 +78,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    class FetchPopularMoviesTask extends AsyncTask<URL,Void,String>{
+    class FetchPopularMoviesTask extends AsyncTask<URL,Void,List<String>>{
 
         @Override
-        protected String doInBackground(URL... urls) {
+        protected List<String> doInBackground(URL... urls) {
             URL movieURL = urls[0];
-            String movieJSON = NetworkUtility.getMovieJSON(movieURL);
-            return movieJSON;
+            String movieJSON = NetworkUtility.getMovieJson(movieURL);
+            try {
+                mDataSource = NetworkUtility.extractMoviePostersFromResponse(movieJSON);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return mDataSource;
 
         }
 
         @Override
-        protected void onPostExecute(String movieJsonString) {
-            if(movieJsonString != null){
-                Log.d(LOG_TAG,movieJsonString);
+        protected void onPostExecute(List<String> posters) {
+            if(posters != null){
+
+                mMovieAdapter.setMoviePosterPaths(posters);
             }
 
             else{
