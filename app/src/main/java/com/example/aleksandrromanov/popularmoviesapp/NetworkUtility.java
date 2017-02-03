@@ -1,6 +1,5 @@
 package com.example.aleksandrromanov.popularmoviesapp;
 
-import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
@@ -11,6 +10,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import okhttp3.OkHttpClient;
@@ -28,6 +29,7 @@ public final class NetworkUtility {
     private static final String PROTOCOL = "https";
     private static final String LANGUAGE = "en-US";
     private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185/";
+    private static List<String> pathsToImages = new ArrayList<String>();
 
 
 
@@ -81,7 +83,7 @@ public final class NetworkUtility {
      * @param movieURL
      * @return Temporary JSON string returned from API call
      */
-    public static String getMovieJSON(URL movieURL){
+    public static String getMovieJson(URL movieURL){
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(movieURL)
@@ -100,34 +102,46 @@ public final class NetworkUtility {
 
     }
 
+    private static String makeAbsolutePathForImages(String relativePath){
+        String absolutePathToImage = IMAGE_BASE_PATH + relativePath;
+        return absolutePathToImage;
+    }
 
 
-    public static void extractMoviePostersFromResponse(String json) throws JSONException{
-        JSONObject obj = null;
-        obj = new JSONObject(json);
+
+
+
+    public static List<String> extractMoviePostersFromResponse(String json) throws JSONException{
+
+        if(pathsToImages.size() != 0){
+            pathsToImages.clear();
+        }
+        JSONObject obj = new JSONObject(json);
         if(obj != null){
             JSONArray results = obj.getJSONArray("results");
-
             if(results != null){
                 for(int i = 0; i < results.length(); i++){
-                    Log.d(LOG_TAG,results.getJSONObject(i).getString("poster_path"));
+                    String relativePath = results.getJSONObject(i).getString("poster_path");
+                    pathsToImages.add(makeAbsolutePathForImages(relativePath));
+                    Log.d(LOG_TAG,relativePath);
                 }
-
-
-
             }
-
             else{
                 Log.d(LOG_TAG,"Error parsing json");
             }
         }
         else{
-            Log.d(LOG_TAG,"Error JSON paring");
+            Log.d(LOG_TAG,"Error parsing JSON");
         }
 
-
-
+        if(pathsToImages.size() != 0 || pathsToImages != null){
+            for (String path:pathsToImages) {
+                Log.d(LOG_TAG,"Path: " + path);
+            }
+            return pathsToImages;
+        }
+        else{
+            return null;
+        }
     }
-
-
 }
