@@ -4,6 +4,10 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,10 +23,11 @@ import okhttp3.Response;
 
 public final class NetworkUtility {
 
-    private static String LOG_TAG = NetworkUtility.class.getName();
-    private static String AUTHORITY = "api.themoviedb.org";
-    private static String PROTOCOL = "https";
-    private static String LANGUAGE = "en-US";
+    private static final String LOG_TAG = NetworkUtility.class.getName();
+    private static final String AUTHORITY = "api.themoviedb.org";
+    private static final String PROTOCOL = "https";
+    private static final String LANGUAGE = "en-US";
+    private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185/";
 
 
 
@@ -94,5 +99,35 @@ public final class NetworkUtility {
         return movieJSON;
 
     }
+
+
+
+    public static void extractMoviePostersFromResponse(String json) throws JSONException{
+        JSONObject obj = null;
+        obj = new JSONObject(json);
+        if(obj != null){
+            JSONArray results = obj.getJSONArray("results");
+
+            if(results != null){
+                for(int i = 0; i < results.length(); i++){
+                    Log.d(LOG_TAG,results.getJSONObject(i).getString("poster_path"));
+                }
+
+
+
+            }
+
+            else{
+                Log.d(LOG_TAG,"Error parsing json");
+            }
+        }
+        else{
+            Log.d(LOG_TAG,"Error JSON paring");
+        }
+
+
+
+    }
+
 
 }
