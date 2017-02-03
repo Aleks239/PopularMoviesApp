@@ -28,7 +28,7 @@ public final class NetworkUtility {
     private static final String AUTHORITY = "api.themoviedb.org";
     private static final String PROTOCOL = "https";
     private static final String LANGUAGE = "en-US";
-    private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185/";
+    private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185";
     private static List<String> pathsToImages = new ArrayList<String>();
 
 
@@ -123,7 +123,7 @@ public final class NetworkUtility {
                 for(int i = 0; i < results.length(); i++){
                     String relativePath = results.getJSONObject(i).getString("poster_path");
                     pathsToImages.add(makeAbsolutePathForImages(relativePath));
-                    Log.d(LOG_TAG,relativePath);
+
                 }
             }
             else{
