@@ -42,7 +42,10 @@ public class MainActivity extends AppCompatActivity {
         mRecycleView.setLayoutManager(layoutManager);
         mMovieAdapter = new MovieAdapter(this,mDataSource);
         mRecycleView.setAdapter(mMovieAdapter);
-        new FetchPopularMoviesTask().execute(url);
+        if(url != null){
+            new FetchPopularMoviesTask().execute(url);
+        }
+
 
 
     }
@@ -73,14 +76,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     class FetchPopularMoviesTask extends AsyncTask<URL,Void,List<String>>{
 
         @Override
         protected List<String> doInBackground(URL... urls) {
             URL movieURL = urls[0];
-            String movieJSON = NetworkUtility.getMovieJson(movieURL);
+
             try {
-                mDataSource = NetworkUtility.extractMoviePostersFromResponse(movieJSON);
+                String movieJSON = NetworkUtility.getMovieJson(movieURL);
+                if(movieJSON != null){
+                    mDataSource = NetworkUtility.extractMoviePostersFromResponse(movieJSON);
+                }
+
+                else{
+                    return null;
+                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
