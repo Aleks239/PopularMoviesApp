@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 
 import org.json.JSONException;
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecycleView;
     private List<String> mDataSource;
     private MovieAdapter mMovieAdapter;
+    private TextView mErrorTextView;
+    private ProgressBar mProgressBar;
 
 
 
@@ -35,19 +40,45 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sApiKey = getString(R.string.MOVIE_DB_API_KEY);
 
-        URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
+        mErrorTextView = (TextView) findViewById(R.id.tv_error_occurred);
+        mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mRecycleView = (RecyclerView)findViewById(R.id.rv_posters_view);
+
         mRecycleView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,3);
         mRecycleView.setLayoutManager(layoutManager);
         mMovieAdapter = new MovieAdapter(this,mDataSource);
         mRecycleView.setAdapter(mMovieAdapter);
+
+        loadMoviePoster();
+
+
+    }
+
+    private void loadMoviePoster(){
+        URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
         if(url != null){
             new FetchPopularMoviesTask().execute(url);
         }
+        else{
+            showErrorMessage();
+        }
+    }
 
+    private void showMoviePosters(){
+        mRecycleView.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+    }
 
+    private void showErrorMessage(){
+        mRecycleView.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+        mErrorTextView.setVisibility(View.VISIBLE);
+    }
 
+    private void showLoadingIndicator(){
+        mRecycleView.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -62,11 +93,7 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.refresh_menu_item:
-                URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
-                if(url != null){
-                    new FetchPopularMoviesTask().execute(url);
-                }
-                else Log.d(LOG_TAG,"Error has occurred");
+                loadMoviePoster();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -76,19 +103,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    /**
+     * Async Task subclass which fetches JSON from MOVIE DB API
+     * on the background thread
+     */
     class FetchPopularMoviesTask extends AsyncTask<URL,Void,List<String>>{
-
         @Override
         protected List<String> doInBackground(URL... urls) {
             URL movieURL = urls[0];
-
             try {
                 String movieJSON = NetworkUtility.getMovieJson(movieURL);
                 if(movieJSON != null){
                     mDataSource = NetworkUtility.extractMoviePostersFromResponse(movieJSON);
                 }
-
                 else{
                     return null;
                 }
@@ -101,13 +128,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            showLoadingIndicator();
+        }
+
+        @Override
         protected void onPostExecute(List<String> posters) {
             if(posters != null){
-
                 mMovieAdapter.setMoviePosterPaths(posters);
-            }
+                showMoviePosters();
 
+            }
             else{
+                showErrorMessage();
                 Log.d(LOG_TAG,"Failed to fetch JSON");
             }
 
