@@ -4,6 +4,7 @@ package com.example.aleksandrromanov.popularmoviesapp;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,17 +38,11 @@ public class MainActivity extends AppCompatActivity {
         URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
         mRecycleView = (RecyclerView)findViewById(R.id.rv_posters_view);
         mRecycleView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,3);
         mRecycleView.setLayoutManager(layoutManager);
         mMovieAdapter = new MovieAdapter(this,mDataSource);
         mRecycleView.setAdapter(mMovieAdapter);
         new FetchPopularMoviesTask().execute(url);
-
-
-
-
-
-
 
 
     }
