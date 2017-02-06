@@ -50,13 +50,13 @@ public class MainActivity extends AppCompatActivity {
         mMovieAdapter = new MovieAdapter(this,mDataSource);
         mRecycleView.setAdapter(mMovieAdapter);
 
-        loadMoviePoster();
+        loadMoviePoster("popular");
 
 
     }
 
-    private void loadMoviePoster(){
-        URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
+    private void loadMoviePoster(String type){
+        URL url = NetworkUtility.buildMovieURL(type,sApiKey);
         if(url != null){
             new FetchPopularMoviesTask().execute(url);
         }
@@ -92,8 +92,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         switch (itemId){
-            case R.id.refresh_menu_item:
-                loadMoviePoster();
+            case R.id.sort_by_top_rated:
+                loadMoviePoster("top_rated");
+                return true;
+            case R.id.sort_by_popular:
+                loadMoviePoster("popular");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
