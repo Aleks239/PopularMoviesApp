@@ -40,10 +40,10 @@ public final class NetworkUtility {
      * @return String representing a page number in the API
      */
 
-    private static String generateRandomPage(){
+    private static int generateRandomPage(int num){
         Random random = new Random();
-        int pageNumber = random.nextInt(984) + 1;
-        return String.valueOf(pageNumber);
+        int pageNumber = random.nextInt(num) + 1;
+        return pageNumber;
 
     }
 
@@ -55,7 +55,20 @@ public final class NetworkUtility {
      * @return Movie DB API URL
      */
     public static URL buildMovieURL(String path, String API_KEY){
-        String page = generateRandomPage();
+        int page = 0;
+
+        switch (path){
+            case "top_rated":
+                page = generateRandomPage(235);
+                break;
+            case "popular":
+                page = generateRandomPage(979);
+                break;
+            default:
+                break;
+
+        }
+
         URL movieURL = null;
         Uri.Builder builder = new Uri.Builder();
         Uri movieUri = builder.scheme(PROTOCOL)
@@ -63,7 +76,7 @@ public final class NetworkUtility {
                 .appendPath("3")
                 .appendPath("movie").appendPath(path)
                 .appendQueryParameter("api_key",API_KEY).appendQueryParameter("language",LANGUAGE)
-                .appendQueryParameter("page",page)
+                .appendQueryParameter("page",String.valueOf(page))
                 .build();
 
         try{
@@ -97,9 +110,7 @@ public final class NetworkUtility {
         }catch (IOException e){
             e.printStackTrace();
         }
-
         return movieJSON;
-
     }
 
     private static String makeAbsolutePathForImages(String relativePath){
