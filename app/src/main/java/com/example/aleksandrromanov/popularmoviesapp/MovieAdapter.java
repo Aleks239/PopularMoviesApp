@@ -44,7 +44,7 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MoviePosterViewHold
 
     @Override
     public void onBindViewHolder(MoviePosterViewHolder holder, int position) {
-        Picasso.with(mContext).load(mImagesDataSource.get(position)).resize(500,500).into(holder.imageView);
+        Picasso.with(mContext).load(mImagesDataSource.get(position)).into(holder.imageView);
     }
 
     @Override
