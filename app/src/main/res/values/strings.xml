@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Popular Movies App</string>
-    <string name="menu_refresh">Refresh</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="options">Options</string>
     <string name="network_error">Network error has occurred</string>
     <string name="MOVIE_DB_API_KEY"></string>
 
