@@ -18,11 +18,21 @@ import java.util.List;
 
 class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MoviePosterViewHolder> {
 
+
+    public interface MovieItemClickListener{
+        void onClick(String movie);
+    }
+
+    private final MovieItemClickListener mMovieClickHandler;
+
     private List<String> mImagesDataSource;
     private final static String LOG_TAG = MovieAdapter.class.getName();
     private Context mContext;
 
-    public MovieAdapter(Context c, List<String> data){
+
+
+    public MovieAdapter(Context c, List<String> data, MovieItemClickListener clickHandler){
+        mMovieClickHandler = clickHandler;
         mContext = c;
         mImagesDataSource = data;
 
@@ -44,7 +54,7 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MoviePosterViewHold
 
     @Override
     public void onBindViewHolder(MoviePosterViewHolder holder, int position) {
-        Picasso.with(mContext).load(mImagesDataSource.get(position)).resize(600,900).into(holder.imageView);
+        Picasso.with(mContext).load(mImagesDataSource.get(position)).into(holder.imageView);
     }
 
     @Override
@@ -53,14 +63,25 @@ class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MoviePosterViewHold
         else return mImagesDataSource.size();
     }
 
-    class MoviePosterViewHolder extends RecyclerView.ViewHolder{
+    class MoviePosterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public ImageView imageView;
+        @Override
+        public void onClick(View view) {
+            int adapterPosition = getAdapterPosition();
+            String movie = mImagesDataSource.get(adapterPosition);
+            mMovieClickHandler.onClick(movie);
+        }
 
-        public MoviePosterViewHolder(View itemView) {
+        private ImageView imageView;
+
+        private MoviePosterViewHolder(View itemView) {
+
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.movie_poster_item);
+            itemView.setOnClickListener(this);
         }
+
+
     }
 
 

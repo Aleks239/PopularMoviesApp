@@ -1,12 +1,14 @@
 package com.example.aleksandrromanov.popularmoviesapp;
 
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import org.json.JSONException;
@@ -21,7 +24,7 @@ import org.json.JSONException;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener {
 
     private static final String LOG_TAG = MainActivity.class.getName();
     private static String sApiKey;
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private MovieAdapter mMovieAdapter;
     private TextView mErrorTextView;
     private ProgressBar mProgressBar;
+
 
 
 
@@ -45,9 +49,16 @@ public class MainActivity extends AppCompatActivity {
         mRecycleView = (RecyclerView)findViewById(R.id.rv_posters_view);
 
         mRecycleView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,3);
+
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,2);
+
+
+
+
+
+
         mRecycleView.setLayoutManager(layoutManager);
-        mMovieAdapter = new MovieAdapter(this,mDataSource);
+        mMovieAdapter = new MovieAdapter(this,mDataSource,this);
         mRecycleView.setAdapter(mMovieAdapter);
 
         loadMoviePoster("popular");
@@ -103,6 +114,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+
+    }
+
+    @Override
+    public void onClick(String movie) {
+
+        Context context = this;
+        Toast.makeText(context, movie, Toast.LENGTH_SHORT)
+                .show();
 
     }
 
