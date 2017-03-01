@@ -5,10 +5,10 @@
 
     <ImageView
         android:id="@+id/movie_poster_item"
-        android:layout_height="400dp"
+        android:layout_height="320dp"
         android:layout_width="match_parent"
         android:scaleType="fitXY"
-        android:layout_marginTop="3dp"
+
         />
 
 </FrameLayout>

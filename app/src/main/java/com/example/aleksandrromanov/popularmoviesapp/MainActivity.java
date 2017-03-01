@@ -2,6 +2,7 @@ package com.example.aleksandrromanov.popularmoviesapp;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -121,8 +122,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void onClick(String movie) {
 
         Context context = this;
-        Toast.makeText(context, movie, Toast.LENGTH_SHORT)
-                .show();
+        Class destinationClass = MovieDetail.class;
+        Intent movieDetailIntent = new Intent(context,destinationClass);
+        movieDetailIntent.putExtra(Intent.EXTRA_TEXT, movie);
+        startActivity(movieDetailIntent);
 
     }
 
