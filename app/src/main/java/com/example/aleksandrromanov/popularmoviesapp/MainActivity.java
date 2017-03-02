@@ -7,9 +7,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import org.json.JSONException;
@@ -30,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final String LOG_TAG = MainActivity.class.getName();
     private static String sApiKey;
     private RecyclerView mRecycleView;
-    private List<String> mDataSource;
+    private List<Movie> mDataSource;
     private MovieAdapter mMovieAdapter;
     private TextView mErrorTextView;
     private ProgressBar mProgressBar;
@@ -86,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecycleView.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
         mErrorTextView.setVisibility(View.VISIBLE);
+
     }
 
     private void showLoadingIndicator(){
@@ -119,13 +117,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void onClick(String movie) {
+    public void onClick(Movie movie) {
 
         Context context = this;
         Class destinationClass = MovieDetail.class;
         Intent movieDetailIntent = new Intent(context,destinationClass);
-        movieDetailIntent.putExtra(Intent.EXTRA_TEXT, movie);
+        movieDetailIntent.putExtra(Intent.EXTRA_TEXT, movie.getTitle());
         startActivity(movieDetailIntent);
+
 
     }
 
@@ -133,14 +132,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
      * Async Task subclass which fetches JSON from MOVIE DB API
      * on the background thread
      */
-    class FetchPopularMoviesTask extends AsyncTask<URL,Void,List<String>>{
+    class FetchPopularMoviesTask extends AsyncTask<URL,Void,List<Movie>>{
         @Override
-        protected List<String> doInBackground(URL... urls) {
+        protected List<Movie> doInBackground(URL... urls) {
             URL movieURL = urls[0];
             try {
                 String movieJSON = NetworkUtility.getMovieJson(movieURL);
                 if(movieJSON != null){
-                    mDataSource = NetworkUtility.extractMoviePostersFromResponse(movieJSON);
+                    //TODO Change the method to get the Movie objects instead of the posters
+                    mDataSource = NetworkUtility.extractMoviesFromResponse(movieJSON);
                 }
                 else{
                     return null;
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         @Override
-        protected void onPostExecute(List<String> posters) {
+        protected void onPostExecute(List<Movie> posters) {
             if(posters != null){
                 mMovieAdapter.setMoviePosterPaths(posters);
                 showMoviePosters();
