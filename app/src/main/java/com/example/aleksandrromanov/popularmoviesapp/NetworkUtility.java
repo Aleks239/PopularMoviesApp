@@ -24,12 +24,17 @@ import okhttp3.Response;
 
 public final class NetworkUtility {
 
+    private NetworkUtility(){
+
+    }
+
     private static final String LOG_TAG = NetworkUtility.class.getName();
     private static final String AUTHORITY = "api.themoviedb.org";
     private static final String PROTOCOL = "https";
     private static final String LANGUAGE = "en-US";
     private static final String IMAGE_BASE_PATH = "http://image.tmdb.org/t/p/w185";
-    private static List<String> pathsToImages = new ArrayList<String>();
+    private static List<Movie> mMovieList = new ArrayList<>();
+
 
 
 
@@ -79,6 +84,8 @@ public final class NetworkUtility {
                 .appendQueryParameter("page",String.valueOf(page))
                 .build();
 
+
+
         try{
             movieURL = new URL(movieUri.toString());
             Log.d(LOG_TAG, movieURL.toString());
@@ -121,19 +128,30 @@ public final class NetworkUtility {
 
 
 
+    //TODO change the method to construct Movie object as data sources
+    public static List<Movie> extractMoviesFromResponse(String json) throws JSONException{
 
-    public static List<String> extractMoviePostersFromResponse(String json) throws JSONException{
-
-        if(pathsToImages.size() != 0){
-            pathsToImages.clear();
+        if(mMovieList.size() != 0){
+            mMovieList.clear();
         }
         JSONObject obj = new JSONObject(json);
         if(obj != null){
             JSONArray results = obj.getJSONArray("results");
             if(results != null){
                 for(int i = 0; i < results.length(); i++){
-                    String relativePath = results.getJSONObject(i).getString("poster_path");
-                    pathsToImages.add(makeAbsolutePathForImages(relativePath));
+                    Log.d(LOG_TAG, results.getJSONObject(i).toString());
+                    String title = results.getJSONObject(i).getString("original_title");
+                    String moviePoster = makeAbsolutePathForImages(results.getJSONObject(i).getString("poster_path"));
+                    String synopsis = results.getJSONObject(i).getString("overview");
+                    String voteAverage = results.getJSONObject(i).getString("vote_average");
+                    String releaseDate = results.getJSONObject(i).getString("release_date");
+                    Movie.MovieBuilder builder = Movie.newBuilder();
+                    Movie movie = builder.withTitle(title)
+                            .addPoster(moviePoster)
+                            .addSynopsis(synopsis).addRating(voteAverage)
+                            .withDate(releaseDate).build();
+                    mMovieList.add(movie);
+
 
                 }
             }
@@ -145,11 +163,11 @@ public final class NetworkUtility {
             Log.d(LOG_TAG,"Error parsing JSON");
         }
 
-        if(pathsToImages.size() != 0 || pathsToImages != null){
-            for (String path:pathsToImages) {
-                Log.d(LOG_TAG,"Path: " + path);
+        if(mMovieList.size() != 0 || mMovieList != null){
+            for (Movie movie:mMovieList) {
+                Log.d(LOG_TAG,"Movie: " + movie);
             }
-            return pathsToImages;
+            return mMovieList;
         }
         else{
             return null;
