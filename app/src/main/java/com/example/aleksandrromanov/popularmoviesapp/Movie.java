@@ -16,6 +16,23 @@ class Movie {
         return this.title;
     }
 
+    public String getPoster(){
+        return this.poster;
+
+    }
+
+    public String getSynopsis(){
+        return this.synopsis;
+    }
+
+    public String getRating(){
+        return this.rating;
+    }
+
+    public String getReleaseDate(){
+        return this.releaseDate;
+    }
+
     private Movie(String title, String poster, String synopsis, String rating, String releaseDate){
         this.title = title;
         this.poster = poster;
