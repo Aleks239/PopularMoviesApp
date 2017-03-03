@@ -22,7 +22,7 @@ import okhttp3.Response;
  * Created by aleksandrromanov on 02/02/2017.
  */
 
-public final class NetworkUtility {
+ class NetworkUtility {
 
     private NetworkUtility(){
 
@@ -165,7 +165,7 @@ public final class NetworkUtility {
 
         if(mMovieList.size() != 0 || mMovieList != null){
             for (Movie movie:mMovieList) {
-                Log.d(LOG_TAG,"Movie: " + movie);
+                Log.d(LOG_TAG,"Movie: " + movie.getRating());
             }
             return mMovieList;
         }
