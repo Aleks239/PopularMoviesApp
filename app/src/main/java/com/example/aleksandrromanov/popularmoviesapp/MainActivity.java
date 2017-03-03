@@ -3,7 +3,9 @@ package com.example.aleksandrromanov.popularmoviesapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private MovieAdapter mMovieAdapter;
     private TextView mErrorTextView;
     private ProgressBar mProgressBar;
+
 
 
 
@@ -120,9 +123,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void onClick(Movie movie) {
 
         Context context = this;
+
         Class destinationClass = MovieDetail.class;
         Intent movieDetailIntent = new Intent(context,destinationClass);
-        movieDetailIntent.putExtra(Intent.EXTRA_TEXT, movie.getTitle());
+        movieDetailIntent.putExtra("com.example.aleksandrromanov.popularmoviesapp.Movie", movie);
         startActivity(movieDetailIntent);
 
 
