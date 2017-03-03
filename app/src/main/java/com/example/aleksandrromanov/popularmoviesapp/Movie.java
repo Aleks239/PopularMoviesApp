@@ -9,6 +9,11 @@ import static java.lang.System.out;
  * Created by aleksandrromanov on 02/03/2017.
  */
 
+/**
+ * The ideas of parcelable implementation was taken from
+ * https://github.com/erangaeb/dev-notes/blob/master/android-parcelable/User.java
+ */
+
 class Movie implements Parcelable {
 
     private  String title;
