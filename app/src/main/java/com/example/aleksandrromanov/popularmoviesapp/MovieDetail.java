@@ -41,7 +41,7 @@ class MovieDetail extends AppCompatActivity {
             mMovie = b.getParcelable("com.example.aleksandrromanov.popularmoviesapp.Movie");
             if(mMovie != null){
                 Picasso.with(this).load(mMovie.getPoster()).into(mMoviePoster);
-                mMovieRating.setText(mMovie.getRating());
+                mMovieRating.setText(mMovie.getRating() + "/10");
                 mMovieOverview.setText(mMovie.getSynopsis());
                 mMovieTitle.setText(mMovie.getTitle());
                 mReleaseDate.setText(mMovie.getReleaseDate());
