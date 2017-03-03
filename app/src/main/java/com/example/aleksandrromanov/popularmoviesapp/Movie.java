@@ -1,16 +1,59 @@
 package com.example.aleksandrromanov.popularmoviesapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import static java.lang.System.out;
+
 /**
  * Created by aleksandrromanov on 02/03/2017.
  */
 
-class Movie {
+class Movie implements Parcelable {
 
-    private final String title;
-    private final String poster;
-    private final String synopsis;
-    private final String rating;
-    private final String releaseDate;
+    private  String title;
+    private  String poster;
+    private  String synopsis;
+    private  String rating;
+    private  String releaseDate;
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.title);
+        parcel.writeString(this.poster);
+        parcel.writeString(this.rating);
+        parcel.writeString(this.synopsis);
+        parcel.writeString(this.releaseDate);
+    }
+
+
+
+    private Movie(Parcel in) {
+        this.title = in.readString();
+        this.poster = in.readString();
+        this.rating = in.readString();
+        this.synopsis = in.readString();
+        this.releaseDate = in.readString();
+
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR
+            = new Parcelable.Creator<Movie>() {
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
 
     public String getTitle(){
         return this.title;
@@ -76,7 +119,7 @@ class Movie {
         }
 
         Movie build(){
-            return new Movie(title,moviePoster,plotSynopsis,rating,releaseDate);
+            return new Movie(this.title,this.moviePoster,this.plotSynopsis,this.rating,this.releaseDate);
         }
 
 
