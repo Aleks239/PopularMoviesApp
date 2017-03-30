@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-class MovieDetail extends AppCompatActivity {
+public class MovieDetail extends AppCompatActivity {
 
 
     private TextView mMovieTitle;
