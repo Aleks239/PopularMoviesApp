@@ -3,9 +3,7 @@ package com.example.aleksandrromanov.popularmoviesapp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.SyncStateContract;
+import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -40,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sApiKey = getString(R.string.MOVIE_DB_API_KEY);
@@ -84,17 +83,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Bundle loaderBundle = new Bundle();
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.sort_by_top_rated:
                 mMovieAdapter.setMoviePosterPaths(null);
-                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,this);
+                loaderBundle.putString(getString(R.string.search_criteria_key), getString(R.string.top_rated_key));
+                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             case R.id.sort_by_popular:
                 mMovieAdapter.setMoviePosterPaths(null);
-                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,this);
+                loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.popular_key));
+                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -117,17 +120,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public Loader<List<Movie>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<Movie>> onCreateLoader(int id, final Bundle args) {
 
         return new AsyncTaskLoader<List<Movie>>(this) {
+
             List<Movie> movies = null;
-
-
             @Override
             public List<Movie> loadInBackground() {
+                String searchCriteria = null;
+                if(args != null){
+                    searchCriteria = args.getString(getString(R.string.search_criteria_key));
+                }
+                URL url;
                 List<Movie> movies = null;
-                URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
+                if(searchCriteria != null){
+                    url = NetworkUtility.buildMovieURL(searchCriteria,sApiKey);
+                }
+                else{
+                    url = NetworkUtility.buildMovieURL("popular",sApiKey);
+                }
                 if(url != null){
+                    Log.d(LOG_TAG,url.toString());
                     try{
                         String movieJSON = NetworkUtility.getMovieJson(url);
                         if(movieJSON != null){
@@ -146,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             @Override
             protected void onStartLoading() {
+
                 if(movies!=null){
                     deliverResult(movies);
                 }else{
