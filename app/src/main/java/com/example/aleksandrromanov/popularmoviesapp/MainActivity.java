@@ -38,15 +38,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private ProgressBar mProgressBar;
     private static int MOVIE_POSTER_LOADER_ID = 0;
 
-
-
-
-
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,34 +52,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,2);
 
-
-
-
-
-
         mRecycleView.setLayoutManager(layoutManager);
         mMovieAdapter = new MovieAdapter(this,mDataSource,this);
         mRecycleView.setAdapter(mMovieAdapter);
 
         Bundle bundleForLoader = null;
         getSupportLoaderManager().initLoader(MOVIE_POSTER_LOADER_ID,bundleForLoader,this);
-
-        //loadMoviePoster("popular");
-
-
-    }
-
-
-
-
-    private void loadMoviePoster(String type){
-        URL url = NetworkUtility.buildMovieURL(type,sApiKey);
-        if(url != null){
-            new FetchPopularMoviesTask().execute(url);
-        }
-        else{
-            showErrorMessage();
-        }
     }
 
     private void showMoviePosters(){
@@ -120,12 +89,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.sort_by_top_rated:
-                //loadMoviePoster("top_rated");
                 mMovieAdapter.setMoviePosterPaths(null);
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,this);
                 return true;
             case R.id.sort_by_popular:
-                //loadMoviePoster("popular");
                 mMovieAdapter.setMoviePosterPaths(null);
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,this);
                 return true;
@@ -213,50 +180,4 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     }
 
-
-    /**
-     * Async Task subclass which fetches JSON from MOVIE DB API
-     * on the background thread
-     */
-    class FetchPopularMoviesTask extends AsyncTask<URL,Void,List<Movie>>{
-        @Override
-        protected List<Movie> doInBackground(URL... urls) {
-            URL movieURL = urls[0];
-            try {
-                String movieJSON = NetworkUtility.getMovieJson(movieURL);
-                if(movieJSON != null){
-                    //TODO Change the method to get the Movie objects instead of the posters
-                    mDataSource = NetworkUtility.extractMoviesFromResponse(movieJSON);
-                }
-                else{
-                    return null;
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return mDataSource;
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showLoadingIndicator();
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> posters) {
-            if(posters != null){
-                mMovieAdapter.setMoviePosterPaths(posters);
-                showMoviePosters();
-
-            }
-            else{
-                showErrorMessage();
-                Log.d(LOG_TAG,"Failed to fetch JSON");
-            }
-
-
-        }
-    }
 }
