@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.SyncStateContract;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -24,7 +27,7 @@ import org.json.JSONException;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener,LoaderManager.LoaderCallbacks<List<Movie>> {
 
     private static final String LOG_TAG = MainActivity.class.getName();
     private static String sApiKey;
@@ -33,6 +36,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private MovieAdapter mMovieAdapter;
     private TextView mErrorTextView;
     private ProgressBar mProgressBar;
+    private static int MOVIE_POSTER_LOADER_ID = 0;
+
+
+
+
 
 
 
@@ -62,10 +70,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter = new MovieAdapter(this,mDataSource,this);
         mRecycleView.setAdapter(mMovieAdapter);
 
-        loadMoviePoster("popular");
+        Bundle bundleForLoader = null;
+        getSupportLoaderManager().initLoader(MOVIE_POSTER_LOADER_ID,bundleForLoader,this);
+
+        //loadMoviePoster("popular");
 
 
     }
+
+
+
 
     private void loadMoviePoster(String type){
         URL url = NetworkUtility.buildMovieURL(type,sApiKey);
@@ -106,10 +120,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.sort_by_top_rated:
-                loadMoviePoster("top_rated");
+                //loadMoviePoster("top_rated");
+                mMovieAdapter.setMoviePosterPaths(null);
+                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,this);
                 return true;
             case R.id.sort_by_popular:
-                loadMoviePoster("popular");
+                //loadMoviePoster("popular");
+                mMovieAdapter.setMoviePosterPaths(null);
+                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -123,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void onClick(Movie movie) {
 
         Context context = this;
-
         Class destinationClass = MovieDetail.class;
         Intent movieDetailIntent = new Intent(context,destinationClass);
         movieDetailIntent.putExtra("com.example.aleksandrromanov.popularmoviesapp.Movie", movie);
@@ -131,6 +148,71 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
 
     }
+
+    @Override
+    public Loader<List<Movie>> onCreateLoader(int id, Bundle args) {
+
+        return new AsyncTaskLoader<List<Movie>>(this) {
+            List<Movie> movies = null;
+
+
+            @Override
+            public List<Movie> loadInBackground() {
+                List<Movie> movies = null;
+                URL url = NetworkUtility.buildMovieURL("popular",sApiKey);
+                if(url != null){
+                    try{
+                        String movieJSON = NetworkUtility.getMovieJson(url);
+                        if(movieJSON != null){
+                            movies = NetworkUtility.extractMoviesFromResponse(movieJSON);
+                        }
+                        else {
+                            return null;
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+
+                }
+                return movies;
+            }
+
+            @Override
+            protected void onStartLoading() {
+                if(movies!=null){
+                    deliverResult(movies);
+                }else{
+                    showLoadingIndicator();
+                    forceLoad();
+                }
+
+            }
+
+            public void deliverResult(List<Movie> data){
+                movies = data;
+                super.deliverResult(data);
+            }
+        };
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+        mMovieAdapter.setMoviePosterPaths(data);
+        if(data == null){
+            showErrorMessage();
+        }
+        else{
+            showMoviePosters();
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Movie>> loader) {
+
+    }
+
 
     /**
      * Async Task subclass which fetches JSON from MOVIE DB API
