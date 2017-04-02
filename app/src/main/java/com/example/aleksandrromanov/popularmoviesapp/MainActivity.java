@@ -3,7 +3,6 @@ package com.example.aleksandrromanov.popularmoviesapp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -19,10 +18,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-
 import org.json.JSONException;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieItemClickListener,LoaderManager.LoaderCallbacks<List<Movie>> {
@@ -35,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private TextView mErrorTextView;
     private ProgressBar mProgressBar;
     private static int MOVIE_POSTER_LOADER_ID = 0;
+    private EndlessRecyclerViewScrollListener mScrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +43,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setContentView(R.layout.activity_main);
         sApiKey = getString(R.string.MOVIE_DB_API_KEY);
 
+
+
+
+
         mErrorTextView = (TextView) findViewById(R.id.tv_error_occurred);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         mRecycleView = (RecyclerView)findViewById(R.id.rv_posters_view);
 
         mRecycleView.setHasFixedSize(true);
 
+        mDataSource = new ArrayList<>();
+
+
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,2);
+        GridLayoutManager gridLayoutManager = (GridLayoutManager)layoutManager;
 
         mRecycleView.setLayoutManager(layoutManager);
         mMovieAdapter = new MovieAdapter(this,mDataSource,this);
@@ -57,7 +65,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         Bundle bundleForLoader = null;
         getSupportLoaderManager().initLoader(MOVIE_POSTER_LOADER_ID,bundleForLoader,this);
+
+
+        mScrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,null,MainActivity.this);
+            }
+        };
+
+        mRecycleView.addOnScrollListener(mScrollListener);
+
     }
+
 
     private void showMoviePosters(){
         mRecycleView.setVisibility(View.VISIBLE);
@@ -70,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mErrorTextView.setVisibility(View.VISIBLE);
 
     }
+
 
     private void showLoadingIndicator(){
         mRecycleView.setVisibility(View.INVISIBLE);
@@ -84,18 +105,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
 
+    private void cleanDataOnNewSearch(){
+        mMovieAdapter.setMoviePosterPaths(null);
+        mDataSource.clear();
+        mScrollListener.resetState();
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Bundle loaderBundle = new Bundle();
         int itemId = item.getItemId();
         switch (itemId){
             case R.id.sort_by_top_rated:
-                mMovieAdapter.setMoviePosterPaths(null);
+                cleanDataOnNewSearch();
                 loaderBundle.putString(getString(R.string.search_criteria_key), getString(R.string.top_rated_key));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             case R.id.sort_by_popular:
-                mMovieAdapter.setMoviePosterPaths(null);
+                cleanDataOnNewSearch();
                 loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.popular_key));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
@@ -132,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                     searchCriteria = args.getString(getString(R.string.search_criteria_key));
                 }
                 URL url;
-                List<Movie> movies = null;
+
                 if(searchCriteria != null){
                     url = NetworkUtility.buildMovieURL(searchCriteria,sApiKey);
                 }
@@ -179,11 +207,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
-        mMovieAdapter.setMoviePosterPaths(data);
         if(data == null){
             showErrorMessage();
         }
         else{
+            if(mDataSource!=null)
+            Log.d(LOG_TAG,"Amount of items in the dataSource is: " + mDataSource.size());
+
+            else
+                Log.d(LOG_TAG,"First time is null");
+
+            mDataSource.addAll(data);
+            mMovieAdapter.setMoviePosterPaths(mDataSource);
             showMoviePosters();
         }
 
