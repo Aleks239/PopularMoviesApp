@@ -191,7 +191,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 if(movies!=null){
                     deliverResult(movies);
                 }else{
-                    showLoadingIndicator();
+                    if(mDataSource.size() < 20){
+                        showLoadingIndicator();
+                    }
                     forceLoad();
                 }
 
@@ -202,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 super.deliverResult(data);
             }
         };
+
 
     }
 
@@ -228,5 +231,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public void onLoaderReset(Loader<List<Movie>> loader) {
 
     }
+
+
 
 }
