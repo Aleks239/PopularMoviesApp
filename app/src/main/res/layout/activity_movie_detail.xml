@@ -8,74 +8,131 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="4dp">
+            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:cardCornerRadius="4dp">
 
-        <android.support.v7.widget.CardView
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/card_view"
-            android:layout_width="190dp"
-            android:layout_height="240dp"
-            card_view:cardCornerRadius="4dp">
-
-            <ImageView
-                android:id="@+id/movie_poster_detail"
-                android:layout_height="match_parent"
-                android:layout_marginTop="4dp"
-                android:layout_width="match_parent" />
-        </android.support.v7.widget.CardView>
+                <ImageView
+                    android:id="@+id/movie_poster_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"/>
+            </android.support.v7.widget.CardView>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_height="wrap_content">
+            android:layout_weight="1">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="bottom"
+                    android:padding="3dp"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/tv_movie_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="Hello"
+                        android:textColor="@color/cardview_dark_background"
+                        android:textSize="20sp" />
 
-            <TextView
-                android:id="@+id/tv_movie_title"
-                android:layout_width="match_parent"
-                android:padding="3dp"
-                android:gravity="center"
-                android:layout_margin="3dp"
-                android:textSize="20sp"
-                android:textColor="@color/cardview_dark_background"
-                android:text="Hello"
-                android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tv_release_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="10/02/1995"
+                        android:textColor="@color/cardview_dark_background"
+                        android:textSize="15sp" />
+                </LinearLayout>
 
-            <TextView
-            android:id="@+id/tv_release_date"
-            android:gravity="center"
-            android:textColor="@color/cardview_dark_background"
-            android:layout_width="match_parent"
-            android:textSize="15sp"
-            android:padding="3dp"
-            android:text="10/02/1995"
-            android:layout_height="wrap_content" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:layout_marginRight="3dp">
 
-            <TextView
-                android:id="@+id/tv_movie_rating"
-                android:layout_width="match_parent"
-                android:textSize="19sp"
-                android:padding="3dp"
-                android:text="10"
-                android:gravity="center"
-                android:textColor="@color/cardview_dark_background"
-                android:layout_height="wrap_content" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginBottom="4dp">
+                        <RatingBar
+                            android:id="@+id/tv_movie_rating_bar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="?android:attr/ratingBarStyleSmall"
+                            android:scaleX="1.2"
+                            android:scaleY="1.2"
+                            android:numStars="10"
+                            android:stepSize="0.1"
+                            android:isIndicator="true"
+                            android:layout_gravity="center_horizontal"/>
+                        <TextView
+                            android:id="@+id/tv_movie_rating"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:text="10"
+                            android:textColor="@color/cardview_dark_background"
+                            android:textSize="19sp" />
+                    </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:id="@+id/tv_movie_overview"
-                android:gravity="center"
-                android:text="Overview"
-                android:scrollbars="vertical"
-                android:textSize="17sp"
-                android:layout_marginTop="3dp"
-                android:padding="4dp"
-                android:textColor="@color/cardview_dark_background"
-                android:layout_height="match_parent" />
+                        <Button
+                            android:id="@+id/tv_movie_trailer_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:enabled="true"
+                            android:text="Play Trailer"
+                            android:backgroundTint="@color/colorPrimary"
+
+                            android:textColor="@color/cardview_light_background"/>
+                        <Button
+                            android:id="@+id/tv_movie_favourite_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Favourite"
+                            android:drawableRight="@drawable/ic_heart_on"/>
+
+                </LinearLayout>
+
+
+
         </LinearLayout>
-
-
     </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_movie_overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:layout_marginTop="5dp"
+                android:padding="5dp"
+                android:text="Overview"
+                android:textColor="@color/cardview_dark_background"
+                android:textSize="17sp" />
+        </LinearLayout>
 
 
 </LinearLayout>

@@ -4,6 +4,7 @@
     <string name="most_popular">Most Popular</string>
     <string name="options">Options</string>
     <string name="network_error">Network error has occurred</string>
-    <string name="MOVIE_DB_API_KEY"></string>
+    <string name="search_criteria_key">popular</string>
+    <string name="MOVIE_DB_API_KEY">abc123</string>
 
 </resources>

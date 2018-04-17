@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private ProgressBar mProgressBar;
     private static int MOVIE_POSTER_LOADER_ID = 0;
     private EndlessRecyclerViewScrollListener mScrollListener;
+    private static List<Integer> mFavouriteMovies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecycleView.setHasFixedSize(true);
 
         mDataSource = new ArrayList<>();
-
+        mFavouriteMovies = new ArrayList<>();
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,2);
         GridLayoutManager gridLayoutManager = (GridLayoutManager)layoutManager;
@@ -78,6 +79,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     }
 
+
+    public static boolean isFavouriteMovie(Integer movieId){
+        return mFavouriteMovies.contains(movieId);
+    }
+
+    public static void toggleFavouriteMovie(Integer movieId){
+        if(mFavouriteMovies.contains(movieId)){
+            mFavouriteMovies.remove(movieId);
+        }
+        else{
+            mFavouriteMovies.add(movieId);
+        }
+    }
 
     private void showMoviePosters(){
         mRecycleView.setVisibility(View.VISIBLE);
@@ -119,12 +133,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         switch (itemId){
             case R.id.sort_by_top_rated:
                 cleanDataOnNewSearch();
-                loaderBundle.putString(getString(R.string.search_criteria_key), getString(R.string.top_rated_key));
+                //loaderBundle.putString(getString(R.string.search_criteria_key), getString(R.string.top_rated_key));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             case R.id.sort_by_popular:
                 cleanDataOnNewSearch();
-                loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.popular_key));
+                //loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.popular_key));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             default:
@@ -172,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                     try{
                         String movieJSON = NetworkUtility.getMovieJson(url);
                         if(movieJSON != null){
-                            movies = NetworkUtility.extractMoviesFromResponse(movieJSON);
+                            movies = NetworkUtility.extractMoviesFromResponse(movieJSON, sApiKey);
                         }
                         else {
                             return null;

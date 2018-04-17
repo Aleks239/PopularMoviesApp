@@ -126,10 +126,56 @@ import okhttp3.Response;
     }
 
 
+    private static String getTrailerID(int movieID, String API_KEY) throws JSONException{
+
+        URL videoURL = null;
+        Uri.Builder builder = new Uri.Builder();
+        Uri videoUri = builder.scheme(PROTOCOL)
+                .authority(AUTHORITY)
+                .appendPath("3")
+                .appendPath("movie").appendPath(String.valueOf(movieID)).appendPath("videos")
+                .appendQueryParameter("api_key",API_KEY).appendQueryParameter("language",LANGUAGE)
+                .build();
+
+        try{
+            videoURL = new URL(videoUri.toString());
+            Log.d(LOG_TAG, videoURL.toString());
+        }catch (MalformedURLException e){
+            e.printStackTrace();
+        }
+
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(videoURL)
+                .build();
+        String videoJSON = null;
+
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            videoJSON = response.body().string();
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        JSONObject obj = new JSONObject(videoJSON);
+        if(obj != null){
+            JSONArray results = obj.getJSONArray("results");
+            if(results != null) {
+                for (int i = 0; i < results.length(); i++) {
+                    if (results.getJSONObject(i).getString("site").equals("YouTube") && results.getJSONObject(i).getString("type").equals("Trailer")) {
+                        return results.getJSONObject(i).getString("id");
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
 
     //TODO change the method to construct Movie object as data sources
-    public static List<Movie> extractMoviesFromResponse(String json) throws JSONException{
+    public static List<Movie> extractMoviesFromResponse(String json, String API_KEY) throws JSONException{
 
         if(mMovieList.size() != 0){
             mMovieList.clear();
@@ -145,11 +191,13 @@ import okhttp3.Response;
                     String synopsis = results.getJSONObject(i).getString("overview");
                     String voteAverage = results.getJSONObject(i).getString("vote_average");
                     String releaseDate = results.getJSONObject(i).getString("release_date");
+                    String trailerId = getTrailerID(results.getJSONObject(i).getInt("id"), API_KEY);
+                    int id = results.getJSONObject(i).getInt("id");
                     Movie.MovieBuilder builder = Movie.newBuilder();
                     Movie movie = builder.withTitle(title)
                             .addPoster(moviePoster)
                             .addSynopsis(synopsis).addRating(voteAverage)
-                            .withDate(releaseDate).build();
+                            .withDate(releaseDate).withTrailer(trailerId).withId(id).build();
                     mMovieList.add(movie);
 
 

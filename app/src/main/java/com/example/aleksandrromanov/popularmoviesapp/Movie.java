@@ -21,6 +21,8 @@ class Movie implements Parcelable {
     private  String synopsis;
     private  String rating;
     private  String releaseDate;
+    private  String trailerId;
+    private  int id;
 
 
     @Override
@@ -35,6 +37,8 @@ class Movie implements Parcelable {
         parcel.writeString(this.rating);
         parcel.writeString(this.synopsis);
         parcel.writeString(this.releaseDate);
+        parcel.writeString(this.trailerId);
+        parcel.writeInt(this.id);
     }
 
 
@@ -45,7 +49,8 @@ class Movie implements Parcelable {
         this.rating = in.readString();
         this.synopsis = in.readString();
         this.releaseDate = in.readString();
-
+        this.trailerId = in.readString();
+        this.id = in.readInt();
     }
 
     public static final Parcelable.Creator<Movie> CREATOR
@@ -81,13 +86,18 @@ class Movie implements Parcelable {
         return this.releaseDate;
     }
 
-    private Movie(String title, String poster, String synopsis, String rating, String releaseDate){
+    public String getTrailerId() { return this.trailerId; }
+
+    public int getId() { return this.id; }
+
+    private Movie(String title, String poster, String synopsis, String rating, String releaseDate, String trailerId, int id){
         this.title = title;
         this.poster = poster;
         this.synopsis = synopsis;
         this.rating = rating;
         this.releaseDate = releaseDate;
-
+        this.trailerId = trailerId;
+        this.id = id;
     }
 
     static MovieBuilder newBuilder(){
@@ -101,6 +111,8 @@ class Movie implements Parcelable {
         String plotSynopsis;
         String rating;
         String releaseDate;
+        String trailerId;
+        int id;
 
         MovieBuilder withTitle(String title){
             this.title = title;
@@ -123,8 +135,18 @@ class Movie implements Parcelable {
             return this;
         }
 
+        MovieBuilder withTrailer(String id){
+            this.trailerId = id;
+            return this;
+        }
+
+        MovieBuilder withId(int id){
+            this.id = id;
+            return this;
+        }
+
         Movie build(){
-            return new Movie(this.title,this.moviePoster,this.plotSynopsis,this.rating,this.releaseDate);
+            return new Movie(this.title,this.moviePoster,this.plotSynopsis,this.rating,this.releaseDate,this.trailerId,this.id);
         }
 
 
