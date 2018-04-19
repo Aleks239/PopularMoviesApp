@@ -164,7 +164,7 @@ import okhttp3.Response;
             if(results != null) {
                 for (int i = 0; i < results.length(); i++) {
                     if (results.getJSONObject(i).getString("site").equals("YouTube") && results.getJSONObject(i).getString("type").equals("Trailer")) {
-                        return results.getJSONObject(i).getString("id");
+                        return results.getJSONObject(i).getString("key");
                     }
                 }
             }
