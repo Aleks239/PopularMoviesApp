@@ -133,12 +133,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         switch (itemId){
             case R.id.sort_by_top_rated:
                 cleanDataOnNewSearch();
-                //loaderBundle.putString(getString(R.string.search_criteria_key), getString(R.string.top_rated_key));
+                loaderBundle.putString(getString(R.string.search_criteria_key), getString(R.string.criteria_top_rated));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             case R.id.sort_by_popular:
                 cleanDataOnNewSearch();
-                //loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.popular_key));
+                loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.criteria_popular));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
             default:
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
                 if(searchCriteria != null){
                     url = NetworkUtility.buildMovieURL(searchCriteria,sApiKey);
+
                 }
                 else{
                     url = NetworkUtility.buildMovieURL("popular",sApiKey);
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 if(movies!=null){
                     deliverResult(movies);
                 }else{
-                    if(mDataSource.size() < 20){
+                    if(mDataSource.size() < 3){
                         showLoadingIndicator();
                     }
                     forceLoad();
