@@ -17,7 +17,7 @@
         android:padding="8dp"
         android:textSize="20sp"
         android:visibility="invisible"
-        android:text="@string/network_error" />
+        android:text="@string/nothing_saved" />
 
     <ProgressBar
         android:id="@+id/pb_loading_indicator"

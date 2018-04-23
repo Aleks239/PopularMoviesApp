@@ -4,6 +4,7 @@
     <string name="most_popular">Most Popular</string>
     <string name="options">Options</string>
     <string name="network_error">Network error has occurred</string>
+    <string name="nothing_saved">You have not saved any movies yet...</string>
     <string name="search_criteria_key">criteria_key</string>
     <string name="criteria_top_rated">top_rated</string>
     <string name="criteria_popular">popular</string>

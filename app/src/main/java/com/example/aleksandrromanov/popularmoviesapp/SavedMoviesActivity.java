@@ -172,7 +172,7 @@ public class SavedMoviesActivity extends AppCompatActivity implements MovieAdapt
 
     @Override
     public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
-        if(data == null){
+        if(data == null || data.size() == 0){
             showErrorMessage();
         }
         else{
