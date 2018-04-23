@@ -3,6 +3,7 @@ package com.example.aleksandrromanov.popularmoviesapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecycleView.setAdapter(mMovieAdapter);
 
         Bundle bundleForLoader = null;
-        getSupportLoaderManager().initLoader(MOVIE_POSTER_LOADER_ID,bundleForLoader,this);
+        getSupportLoaderManager().initLoader(MOVIE_POSTER_LOADER_ID,bundleForLoader,MainActivity.this);
 
 
         mScrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
@@ -76,6 +77,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         };
 
         mRecycleView.addOnScrollListener(mScrollListener);
+
+try{
+    List<MovieEntity> mList = MovieEntity.findWithQuery(MovieEntity.class, "Select * from MOVIE_ENTITY where identity = ?" , "14125");
+
+    for (MovieEntity e:mList
+            ) {
+
+        Log.d("HERE_IT_COMES", "Hello " + e.identity);
+
+    }
+
+}catch (Exception e){
+    Log.d("HERE_IT_COMES", "ERROR!!!");
+    e.printStackTrace();
+}
+
 
     }
 
@@ -161,64 +178,93 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     }
 
+    private static class MovieListLoader extends AsyncTaskLoader<List<Movie>>{
+
+        private class ContextWrapper{
+            Context context;
+
+            ContextWrapper(Context c){
+                this.context = c;
+            }
+
+            private Context getContext(){
+                return context;
+            }
+        }
+
+        private Bundle args;
+        List<Movie> movies = null;
+        private ContextWrapper wrapper;
+
+
+
+        MovieListLoader(Context context, Bundle args){
+            super(context);
+            this.args = args;
+            this.wrapper = new ContextWrapper(context);
+
+        }
+
+        @Nullable
+        @Override
+        public List<Movie> loadInBackground() {
+            String searchCriteria = null;
+            if(args != null){
+                searchCriteria = args.getString(this.getContext().getString(R.string.search_criteria_key));
+            }
+            URL url;
+
+            if(searchCriteria != null){
+                url = NetworkUtility.buildMovieURL(searchCriteria,sApiKey);
+
+            }
+            else{
+                url = NetworkUtility.buildMovieURL("popular",sApiKey);
+            }
+            if(url != null){
+                Log.d(LOG_TAG,url.toString());
+                try{
+                    String movieJSON = NetworkUtility.getMovieJson(url);
+                    if(movieJSON != null){
+                        movies = NetworkUtility.extractMoviesFromResponse(movieJSON, sApiKey);
+                    }
+                    else {
+                        return null;
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                }
+
+            }
+            return movies;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            MainActivity ma = (MainActivity) this.wrapper.getContext();
+            if(movies!=null){
+                deliverResult(movies);
+            }else{
+                if(ma.mDataSource.size() < 1){
+                    ma.showLoadingIndicator();
+                }
+                forceLoad();
+            }
+        }
+
+        @Override
+        public void deliverResult(@Nullable List<Movie> data) {
+            movies = data;
+            super.deliverResult(data);
+        }
+    }
+
+
+
     @Override
     public Loader<List<Movie>> onCreateLoader(int id, final Bundle args) {
 
-        return new AsyncTaskLoader<List<Movie>>(this) {
-
-            List<Movie> movies = null;
-            @Override
-            public List<Movie> loadInBackground() {
-                String searchCriteria = null;
-                if(args != null){
-                    searchCriteria = args.getString(getString(R.string.search_criteria_key));
-                }
-                URL url;
-
-                if(searchCriteria != null){
-                    url = NetworkUtility.buildMovieURL(searchCriteria,sApiKey);
-
-                }
-                else{
-                    url = NetworkUtility.buildMovieURL("popular",sApiKey);
-                }
-                if(url != null){
-                    Log.d(LOG_TAG,url.toString());
-                    try{
-                        String movieJSON = NetworkUtility.getMovieJson(url);
-                        if(movieJSON != null){
-                            movies = NetworkUtility.extractMoviesFromResponse(movieJSON, sApiKey);
-                        }
-                        else {
-                            return null;
-                        }
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-
-                }
-                return movies;
-            }
-
-            @Override
-            protected void onStartLoading() {
-
-                if(movies!=null){
-                    deliverResult(movies);
-                }else{
-                    if(mDataSource.size() < 3){
-                        showLoadingIndicator();
-                    }
-                    forceLoad();
-                }
-
-            }
-
-            public void deliverResult(List<Movie> data){
-                movies = data;
-                super.deliverResult(data);
-            }
-        };
+        return new MovieListLoader(MainActivity.this, args);
 
 
     }

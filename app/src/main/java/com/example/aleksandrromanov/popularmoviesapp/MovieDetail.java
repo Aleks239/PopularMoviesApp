@@ -16,9 +16,14 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.orm.query.Condition;
+import com.orm.query.Select;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.sql.SQLException;
+import java.util.List;
 
 public class MovieDetail extends AppCompatActivity {
 
@@ -54,9 +59,10 @@ public class MovieDetail extends AppCompatActivity {
         if (b != null){
             mMovie = b.getParcelable("com.example.aleksandrromanov.popularmoviesapp.Movie");
             if(mMovie != null){
+                String rating = mMovie.getRating() + getString(R.string.out_of_ten);
                 Picasso.with(this).load(mMovie.getPoster()).into(mMoviePoster);
                 mMovieRatingBar.setRating(Float.parseFloat(mMovie.getRating()));
-                mMovieRating.setText(mMovie.getRating() + "/10");
+                mMovieRating.setText(rating);
                 mMovieOverview.setText(mMovie.getSynopsis());
                 mMovieTitle.setText(mMovie.getTitle());
                 mReleaseDate.setText(mMovie.getReleaseDate());
@@ -77,10 +83,27 @@ public class MovieDetail extends AppCompatActivity {
 
                 updateFavouriteButtonIcon();
                 mMovieFavouriteBtn.setOnClickListener(new View.OnClickListener() {
+
+                    //TODO log all the movies in the db for the check
                     @Override
                     public void onClick(View v) {
+
                         MainActivity.toggleFavouriteMovie(mMovie.getId());
+                        if(movieInDb(mMovie.getId())){
+                            Log.d("MOVIE_TAG", "Movie in db");
+                            List<MovieEntity> mList = MovieEntity.findWithQuery(MovieEntity.class, "Select * from MOVIE_ENTITY where identity = ?" , Integer.toString(mMovie.getId()));
+                            MovieEntity entity = mList.get(0);
+                            entity.delete();
+                            Log.d("MOVIE_TAG", "Deleting movie " + mMovie.getTitle());
+                        }else{
+                            createMovieEntity(mMovie);
+                        }
                         updateFavouriteButtonIcon();
+
+                        List<MovieEntity> allEntities = MovieEntity.findWithQuery(MovieEntity.class, "Select * from MOVIE_ENTITY");
+                        for (MovieEntity e: allEntities) {
+                            Log.d("ALL" ,"Movie: " + e.identity + " is " + e.title);
+                        }
                     }
                 });
 
@@ -97,8 +120,28 @@ public class MovieDetail extends AppCompatActivity {
 
     }
 
+
+    private boolean movieInDb(int id){
+        if(Select.from(MovieEntity.class)
+                .where(Condition.prop("identity").eq(Integer.toString(id)))
+                .list().size() == 1){
+
+            return true;
+        }
+        return false;
+
+    }
+
+    private void createMovieEntity(Movie movie){
+        MovieEntity movieEntity = new MovieEntity(movie.getId(), movie.getTitle(), movie.getPoster(), movie.getSynopsis(), movie.getRating(),movie.getReleaseDate(), movie.getTrailerId());
+        movieEntity.save();
+//      List<MovieEntity> mList = MovieEntity.findWithQuery(MovieEntity.class, "Select * from MOVIE_ENTITY");
+
+
+    }
+
     private void updateFavouriteButtonIcon(){
-        if(MainActivity.isFavouriteMovie(mMovie.getId())){
+        if(movieInDb(mMovie.getId())){
             mMovieFavouriteBtn.setCompoundDrawablesWithIntrinsicBounds(0,0,R.drawable.ic_heart_on,0);
         }
         else{

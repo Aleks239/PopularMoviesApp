@@ -8,5 +8,6 @@
     <string name="criteria_top_rated">top_rated</string>
     <string name="criteria_popular">popular</string>
     <string name="MOVIE_DB_API_KEY"></string>
+    <string name="out_of_ten">/10</string>
 
 </resources>
