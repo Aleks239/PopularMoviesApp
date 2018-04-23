@@ -158,6 +158,15 @@ try{
                 loaderBundle.putString(getString(R.string.search_criteria_key),getString(R.string.criteria_popular));
                 getSupportLoaderManager().restartLoader(MOVIE_POSTER_LOADER_ID,loaderBundle,this);
                 return true;
+            case  R.id.saved:
+                cleanDataOnNewSearch();
+                Context context = this;
+                Class destinationClass = SavedMoviesActivity.class;
+                Intent savedMoviesIntent = new Intent(context,destinationClass);
+                startActivity(savedMoviesIntent);
+                return true;
+
+
             default:
                 return super.onOptionsItemSelected(item);
 

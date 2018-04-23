@@ -18,6 +18,10 @@
                 android:id="@+id/sort_by_popular"
                 android:title="@string/most_popular"
                 app:showAsAction="ifRoom"/>
+            <item
+                android:id="@+id/saved"
+                android:title="@string/saved"
+                app:showAsAction="ifRoom"/>
 
         </menu>
 
